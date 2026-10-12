@@ -18,5 +18,10 @@ services:
       timeout: 3s
       retries: 10
 
+  verificador:
+    build: ./verificador
+    ports:
+      - "127.0.0.1:${VERIFICADOR_PORT:-8090}:8000"
+
 volumes:
   lazystudio-pgdata:

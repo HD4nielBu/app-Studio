@@ -204,6 +204,7 @@ La ventana muestra **"Conectado"** cuando el frontend llega al backend y el back
 **Pruebas y reglas de arquitectura**
 - Backend: `./mvnw verify` (ArchUnit y pruebas con PostgreSQL real vía Testcontainers).
 - Frontend: `npm run lint` (también corre dentro de `npm run build`).
+- Verificador SymPy: `docker compose run --rm verificador python -m unittest`.
 
 ## 🗺️ Estado y hoja de ruta
 
