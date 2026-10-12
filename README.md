@@ -214,8 +214,10 @@ La ventana muestra **"Conectado"** cuando el frontend llega al backend y el back
 - [x] Especificación de la lógica de negocio: entidades, reglas, estados de dominio y flujos
 - [x] **Fase 0 · Cimientos:** PostgreSQL en Docker, backend Maven con ArchUnit, frontend Tauri + React con ESLint y un esqueleto que camina (`/api/salud`)
 - [ ] **Fase 1 · Porciones verticales:**
-  - [ ] Libro y temario
-  - [ ] Ejercicio y corrección (pistas, rescate, semáforo, verificador SymPy)
+  - [x] Libro y temario
+  - [ ] Ejercicio y corrección
+    - [x] 2a · ejercicio, intento con confianza, pistas, rescate y semáforo
+    - [ ] 2b · verificador matemático (SymPy)
   - [ ] IA con relevo de proveedores gratuitos
   - [ ] Pretest y nivel
   - [ ] Panel de progreso
