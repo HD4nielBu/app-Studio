@@ -67,7 +67,8 @@ public class ServicioPractica implements PracticarEjercicios {
             throw new ReglaVioladaException("Este ejercicio ya terminó; empieza otro intento.");
         }
         Respuesta.validarAntesDeCorregir(respuestaFinal, confianza);
-        var correccion = corrector.corregir(ejercicio(intento.ejercicioId()), desarrollo, respuestaFinal);
+        var correccion = corrector.corregir(ejercicio(intento.ejercicioId()), desarrollo, respuestaFinal,
+                intento.siguientePista());
         var actualizado = intento.registrar(new Respuesta(desarrollo, respuestaFinal, confianza, correccion));
         intentos.guardar(actualizado);
         return actualizado;

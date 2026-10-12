@@ -32,7 +32,7 @@ class ServicioPracticaTest {
     final EnMemoria repo = new EnMemoria();
     // Corrector falso: acierta si la respuesta es "bien".
     final ServicioPractica servicio = new ServicioPractica(libros, repo, repo,
-            (ejercicio, desarrollo, respuesta) -> respuesta.equals("bien") ? Correccion.acierto() : new Correccion(false, null, null));
+            (ejercicio, desarrollo, respuesta, pista) -> respuesta.equals("bien") ? Correccion.acierto() : new Correccion(false, null, null));
 
     UUID libroId;
     UUID h1;

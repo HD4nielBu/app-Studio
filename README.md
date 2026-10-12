@@ -186,7 +186,7 @@ src/                                  # raíz del repositorio
 **Requisitos:** Java 25, Node 24, Rust y Docker (con Docker Desktop abierto). En Linux, además, las librerías de Tauri (`webkit2gtk-4.1` y otras; ver la [guía de Tauri](https://tauri.app/start/prerequisites/)).
 
 ```bash
-cp .env.example .env              # y cambiar POSTGRES_PASSWORD
+cp .env.example .env              # cambiar POSTGRES_PASSWORD y, para la IA, poner GEMINI_API_KEY y GROQ_API_KEY
 
 # Backend (levanta PostgreSQL solo, con docker-compose.yml)
 cd backend

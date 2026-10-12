@@ -13,6 +13,15 @@ const sinAyudas = {
   spellCheck: false,
 } as const;
 
+const tiposDeFallo: Record<string, string> = {
+  CONCEPTO: "concepto",
+  PROCEDIMIENTO: "procedimiento",
+  EJECUCION: "ejecución",
+  LECTURA_DEL_ENUNCIADO: "lectura del enunciado",
+  MEMORIA: "memoria",
+  PRERREQUISITO: "prerrequisito",
+};
+
 const confianzas: { valor: Confianza; texto: string }[] = [
   { valor: 1, texto: "1 · Adiviné" },
   { valor: 2, texto: "2 · Creo que sí" },
@@ -24,10 +33,14 @@ export function Resolver({ ejercicio, onTerminar }: { ejercicio: Ejercicio; onTe
   const [desarrollo, setDesarrollo] = useState("");
   const [respuestaFinal, setRespuestaFinal] = useState("");
   const [confianza, setConfianza] = useState<Confianza | null>(null);
+  const [enviando, setEnviando] = useState(false);
 
   const enviar = async (e: FormEvent) => {
     e.preventDefault();
-    if (confianza && (await responder(desarrollo, respuestaFinal, confianza))) setConfianza(null); // cada respuesta pide su confianza
+    if (!confianza || enviando) return;
+    setEnviando(true); // la IA puede tardar: un solo envío a la vez
+    if (await responder(desarrollo, respuestaFinal, confianza)) setConfianza(null); // cada respuesta pide su confianza
+    setEnviando(false);
   };
 
   if (!intento) return <p>{error ?? "Cargando…"}</p>;
@@ -42,10 +55,13 @@ export function Resolver({ ejercicio, onTerminar }: { ejercicio: Ejercicio; onTe
       {intento.estado === "EN_CURSO" && (
         <>
           {ultima && !ultima.correccion.correcta && (
-            <p role="status">
-              Incorrecto. {ultima.correccion.explicacion} Pista {intento.pistasUsadas} de {intento.pistasMaximas}: revisa tu
-              desarrollo e inténtalo otra vez. (Las pistas las redactará la IA en la porción 3.)
-            </p>
+            <div role="status">
+              <p>
+                Incorrecto (pista {intento.pistasUsadas} de {intento.pistasMaximas})
+                {ultima.correccion.tipoDeFallo && ` · fallo de ${tiposDeFallo[ultima.correccion.tipoDeFallo]}`}.
+              </p>
+              <p style={{ whiteSpace: "pre-line" }}>{ultima.correccion.explicacion}</p>
+            </div>
           )}
           <form onSubmit={enviar}>
             <label>
@@ -64,7 +80,7 @@ export function Resolver({ ejercicio, onTerminar }: { ejercicio: Ejercicio; onTe
                 </label>
               ))}
             </fieldset>
-            <button type="submit" disabled={!confianza}>Enviar respuesta</button>
+            <button type="submit" disabled={!confianza || enviando}>{enviando ? "Corrigiendo…" : "Enviar respuesta"}</button>
           </form>
         </>
       )}
@@ -77,7 +93,9 @@ export function Resolver({ ejercicio, onTerminar }: { ejercicio: Ejercicio; onTe
 
       {intento.estado === "RESCATADO" && (
         <div role="status">
-          <p>Rescate: se acabaron las pistas. Esta es la respuesta final:</p>
+          <p>Rescate: se acabaron las pistas.</p>
+          {ultima?.correccion.explicacion && <p style={{ whiteSpace: "pre-line" }}>{ultima.correccion.explicacion}</p>}
+          <p>Esta es la respuesta final:</p>
           <p><strong>{solucion ?? "…"}</strong></p>
           <p>Ahora resuelve otro ejercicio de este concepto para comprobar que lo entendiste.</p>
         </div>

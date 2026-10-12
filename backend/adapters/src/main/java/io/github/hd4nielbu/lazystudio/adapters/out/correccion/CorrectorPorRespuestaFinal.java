@@ -3,35 +3,45 @@ package io.github.hd4nielbu.lazystudio.adapters.out.correccion;
 import org.springframework.stereotype.Component;
 
 import io.github.hd4nielbu.lazystudio.application.ports.out.Corrector;
+import io.github.hd4nielbu.lazystudio.application.ports.out.Tutor;
 import io.github.hd4nielbu.lazystudio.application.ports.out.VerificadorMatematico;
 import io.github.hd4nielbu.lazystudio.domain.aprendizaje.Correccion;
 import io.github.hd4nielbu.lazystudio.domain.aprendizaje.Ejercicio;
 
 /**
- * Corrector provisional: compara la respuesta final sin espacios ni mayúsculas y, si no coincide, pregunta a SymPy
- * si es equivalente. No mira el desarrollo ni clasifica el fallo (queda "sin clasificar").
+ * Decide si la respuesta final es correcta comparando el texto y, si no coincide, con SymPy: gana siempre el CAS.
+ * Si es incorrecta, la IA explica el primer error, clasifica el fallo y redacta la pista.
  */
-// shortcut: no mira el desarrollo ni reconoce constantes renombradas (C1 por C2); se reemplaza por la IA (porción 3).
+// shortcut: no reconoce constantes renombradas (C1 por C2) y, si SymPy no decide, no consulta a un segundo modelo
+// ni marca el ejercicio "sin verificar" (parte 9); agregarlo cuando se guarde ese estado.
 @Component
 class CorrectorPorRespuestaFinal implements Corrector {
 
-    private final VerificadorMatematico verificador;
+    static final String SIN_EVALUAR = "La respuesta final no coincide con la esperada.";
 
-    CorrectorPorRespuestaFinal(VerificadorMatematico verificador) {
+    private final VerificadorMatematico verificador;
+    private final Tutor tutor;
+
+    CorrectorPorRespuestaFinal(VerificadorMatematico verificador, Tutor tutor) {
         this.verificador = verificador;
+        this.tutor = tutor;
     }
 
     @Override
-    public Correccion corregir(Ejercicio ejercicio, String desarrollo, String respuestaFinal) {
+    public Correccion corregir(Ejercicio ejercicio, String desarrollo, String respuestaFinal, int pista) {
         var esperada = ejercicio.respuestaFinal();
         boolean correcta = normalizar(respuestaFinal).equals(normalizar(esperada))
                 || verificador.sonEquivalentes(esperada, respuestaFinal).orElse(false);
-        return correcta
-                ? Correccion.acierto()
-                : new Correccion(false, null, "La respuesta final no coincide con la esperada.");
+        if (correcta) {
+            return Correccion.acierto();
+        }
+        return tutor.revisarFallo(ejercicio, desarrollo, respuestaFinal, pista)
+                .map(r -> new Correccion(false, r.tipoDeFallo(),
+                        r.pista() == null ? r.primerError() : r.primerError() + "\n\nPista: " + r.pista()))
+                .orElse(new Correccion(false, null, SIN_EVALUAR));
     }
 
-    private static String normalizar(String texto) {
+    static String normalizar(String texto) {
         return texto.replaceAll("\\s+", "").toLowerCase();
     }
 }

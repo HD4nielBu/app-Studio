@@ -14,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 
 /** Base de las pruebas de punta a punta: la app completa contra un PostgreSQL real, llamada por HTTP. */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+// Sin claves de IA: las pruebas nunca llaman a un proveedor real (ni gastan la cuota del alumno).
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        properties = {"GEMINI_API_KEY=", "GROQ_API_KEY="})
 @Import(PostgresDePrueba.class)
 abstract class ApiDePrueba {
 

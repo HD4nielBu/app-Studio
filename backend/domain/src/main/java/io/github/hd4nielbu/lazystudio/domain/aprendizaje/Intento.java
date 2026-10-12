@@ -48,6 +48,11 @@ public record Intento(UUID id, UUID ejercicioId, UUID conceptoId, Estado estado,
         return new Intento(id, ejercicioId, conceptoId, Estado.RESCATADO, pistasUsadas, pistasMaximas, todas);
     }
 
+    /** La pista que daría un fallo ahora (1, 2, ...), o 0 si ya no quedan y toca el rescate. */
+    public int siguientePista() {
+        return pistasUsadas < pistasMaximas ? pistasUsadas + 1 : 0;
+    }
+
     /** Criterio de 🟢 que decide el código: a la primera, sin pistas, y sin confianza 1 ("acertó, pero no lo sabe"). */
     public boolean cuentaParaDominio() {
         return estado == Estado.RESUELTO && respuestas.size() == 1 && respuestas.getFirst().confianza() >= 2;
