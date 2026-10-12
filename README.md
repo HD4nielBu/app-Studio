@@ -22,6 +22,7 @@ Aplicación multiplataforma (escritorio primero, después celular y tablet) para
 - [Tecnologías](#️-tecnologías)
 - [Arquitectura](#️-arquitectura)
 - [Estructura del proyecto](#-estructura-del-proyecto)
+- [Cómo ejecutar](#️-cómo-ejecutar)
 - [Estado y hoja de ruta](#️-estado-y-hoja-de-ruta)
 
 ---
@@ -180,6 +181,30 @@ src/                                  # raíz del repositorio
 5. Si una capa crece, se divide por **contexto** (`aprendizaje/`, `planificacion/`, `material/`) sin romper la regla de dependencias.
 6. **Frontend:** las importaciones van en un solo sentido (`components, lib, types, platform/ports → features → app`) y una feature no importa de otra. ESLint lo hace cumplir, como ArchUnit en el backend.
 
+## ▶️ Cómo ejecutar
+
+**Requisitos:** Java 25, Node 24, Rust y Docker (con Docker Desktop abierto). En Linux, además, las librerías de Tauri (`webkit2gtk-4.1` y otras; ver la [guía de Tauri](https://tauri.app/start/prerequisites/)).
+
+```bash
+cp .env.example .env              # y cambiar POSTGRES_PASSWORD
+
+# Backend (levanta PostgreSQL solo, con docker-compose.yml)
+cd backend
+./mvnw install -DskipTests        # solo la primera vez o al cambiar un módulo que no sea bootstrap
+./mvnw -pl bootstrap spring-boot:run
+
+# Frontend, en otra terminal
+cd frontend
+npm install
+npm run tauri dev
+```
+
+La ventana muestra **"Conectado"** cuando el frontend llega al backend y el backend a PostgreSQL. La salud también se puede consultar con `curl localhost:8080/api/salud`.
+
+**Pruebas y reglas de arquitectura**
+- Backend: `./mvnw verify` (ArchUnit y pruebas con PostgreSQL real vía Testcontainers).
+- Frontend: `npm run lint` (también corre dentro de `npm run build`).
+
 ## 🗺️ Estado y hoja de ruta
 
 > 🚧 **En construcción.** La lógica de negocio está especificada (13/13 partes) y el entorno de desarrollo está listo. Se construye por **porciones verticales**: cada una es una funcionalidad completa, de la base de datos a la pantalla, con su propia migración de Flyway.
@@ -187,7 +212,7 @@ src/                                  # raíz del repositorio
 - [x] Prototipo como skill de Claude Code (v0.1), probado con Cálculo 3
 - [x] Arquitectura y tecnologías definidas
 - [x] Especificación de la lógica de negocio: entidades, reglas, estados de dominio y flujos
-- [ ] **Fase 0 · Cimientos:** PostgreSQL en Docker, backend Maven con ArchUnit, frontend Tauri + React con ESLint y un esqueleto que camina (`/api/salud`)
+- [x] **Fase 0 · Cimientos:** PostgreSQL en Docker, backend Maven con ArchUnit, frontend Tauri + React con ESLint y un esqueleto que camina (`/api/salud`)
 - [ ] **Fase 1 · Porciones verticales:**
   - [ ] Libro y temario
   - [ ] Ejercicio y corrección (pistas, rescate, semáforo, verificador SymPy)
