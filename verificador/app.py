@@ -8,7 +8,7 @@ import multiprocessing
 import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from sympy import E, simplify
+from sympy import E, simplify, sin, tan
 from sympy.parsing.sympy_parser import (convert_xor, implicit_multiplication_application, parse_expr,
                                         standard_transformations)
 
@@ -21,6 +21,8 @@ TRANSFORMACIONES = standard_transformations + (implicit_multiplication_applicati
 NOMBRES = {}
 exec("from sympy import *", NOMBRES)
 NOMBRES["__builtins__"] = {}
+# notación en español: sen y tg
+LOCALES = {"e": E, "sen": sin, "tg": tan}
 
 
 def a_expresion(texto):
@@ -28,7 +30,7 @@ def a_expresion(texto):
         raise ValueError("expresión no admitida")
     # shortcut: de "y = 2x" solo se compara el lado derecho; no sirve para ecuaciones implícitas (porción 3, IA).
     return parse_expr(texto.split("=")[-1], transformations=TRANSFORMACIONES,
-                      global_dict=NOMBRES, local_dict={"e": E})
+                      global_dict=NOMBRES, local_dict=LOCALES)
 
 
 def equivalentes(esperada, dada):

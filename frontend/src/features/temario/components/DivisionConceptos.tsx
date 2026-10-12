@@ -42,6 +42,7 @@ export function DivisionConceptos({ tema, semaforo, onGuardar, onPracticar }: Pr
   }
   return (
     <form onSubmit={guardar}>
+      {tema.conceptos.length === 0 && <p role="status">Divide este tema en conceptos para poder practicar.</p>}
       <label>
         Conceptos de «{tema.nombre}», uno por línea (de {MIN_CONCEPTOS} a {MAX_CONCEPTOS})
         <textarea rows={MAX_CONCEPTOS} value={texto} onChange={(e) => setTexto(e.target.value)} />

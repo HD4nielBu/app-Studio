@@ -9,6 +9,8 @@ class EquivalentesTest(unittest.TestCase):
         self.assertTrue(equivalentes("1+2x", "2*x + 1"))
         self.assertTrue(equivalentes("x^2 - 1", "(x-1)(x+1)"))
         self.assertTrue(equivalentes("y = C1 e^(2x)", "C1*exp(2*x)"))
+        self.assertTrue(equivalentes("e^(2x) sen(x)", "sin(x) e^(2x)"))
+        self.assertTrue(equivalentes("tg(x)", "sin(x)/cos(x)"))
 
     def test_distingue_expresiones_distintas(self):
         self.assertFalse(equivalentes("2x+1", "2x-1"))
