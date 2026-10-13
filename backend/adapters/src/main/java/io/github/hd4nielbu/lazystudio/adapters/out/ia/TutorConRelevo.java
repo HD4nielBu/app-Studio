@@ -77,7 +77,7 @@ class TutorConRelevo implements Tutor {
             if (pausado(p)) continue;
             var texto = preguntar(p, mensajes);
             if (texto.isEmpty()) continue;
-            var revision = validar(texto.get(), pista, ejercicio.respuestaFinal());
+            var revision = validar(texto.get(), pista, ejercicio.respuestaFinal(), lineas(desarrollo));
             if (revision.isPresent()) return revision;
             log.warn("IA {}: salida inválida", p.nombre());
             if (++invalidas >= SALIDAS_INVALIDAS_PERMITIDAS) break;
@@ -124,8 +124,15 @@ class TutorConRelevo implements Tutor {
         }
     }
 
-    /** El código valida lo que dice la IA: formato, tipo de fallo entre los 6 y que la pista no regale la respuesta (R11). */
-    static Optional<Revision> validar(String texto, int pista, String respuestaEsperada) {
+    private static int lineas(String desarrollo) {
+        return desarrollo == null || desarrollo.isBlank() ? 0 : (int) desarrollo.strip().lines().count();
+    }
+
+    /**
+     * El código valida lo que dice la IA: formato, tipo de fallo entre los 6 y que la pista no regale la respuesta (R11).
+     * Una línea que no existe en el desarrollo se descarta, pero no invalida el resto.
+     */
+    static Optional<Revision> validar(String texto, int pista, String respuestaEsperada, int lineasDelDesarrollo) {
         try {
             int desde = texto.indexOf('{'), hasta = texto.lastIndexOf('}'); // algunos modelos envuelven el JSON en ```
             if (desde < 0 || hasta < desde) return Optional.empty();
@@ -140,8 +147,9 @@ class TutorConRelevo implements Tutor {
             if (regala(salida.primerError(), respuestaEsperada)) {
                 return Optional.empty();
             }
+            var linea = salida.linea() != null && salida.linea() >= 1 && salida.linea() <= lineasDelDesarrollo ? salida.linea() : null;
             return Optional.of(new Revision(TipoDeFallo.valueOf(salida.tipoDeFallo()), salida.primerError().strip(),
-                    pista > 0 ? salida.pista().strip() : null));
+                    pista > 0 ? salida.pista().strip() : null, linea));
         } catch (JacksonException e) {
             return Optional.empty();
         }
@@ -157,7 +165,7 @@ class TutorConRelevo implements Tutor {
         return esperada.length() >= 3 && texto.replaceAll("\\s+", "").toLowerCase().contains(esperada);
     }
 
-    record Salida(String tipoDeFallo, String primerError, String pista) {}
+    record Salida(String tipoDeFallo, String primerError, String pista, Integer linea) {}
 
     record Chat(List<Opcion> choices) {
         record Opcion(Mensaje message) {}

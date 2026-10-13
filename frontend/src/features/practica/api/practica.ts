@@ -10,7 +10,7 @@ export type Respuesta = {
   desarrollo: string;
   respuestaFinal: string;
   confianza: Confianza;
-  correccion: { correcta: boolean; tipoDeFallo: string | null; explicacion: string | null };
+  correccion: { correcta: boolean; tipoDeFallo: string | null; explicacion: string | null; lineaDelError: number | null };
 };
 
 export type Intento = {

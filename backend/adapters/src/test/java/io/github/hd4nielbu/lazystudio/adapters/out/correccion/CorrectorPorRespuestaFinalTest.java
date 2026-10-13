@@ -56,12 +56,13 @@ class CorrectorPorRespuestaFinalTest {
     @Test
     void siFallaLaIaExplicaElErrorYDaLaPista() {
         Tutor ia = (ejercicio, desarrollo, respuesta, pista) ->
-                Optional.of(new Tutor.Revision(TipoDeFallo.EJECUCION, "Restaste mal en la línea 2.", "Revisa el signo."));
+                Optional.of(new Tutor.Revision(TipoDeFallo.EJECUCION, "Restaste mal en la línea 2.", "Revisa el signo.", 2));
         var corrector = new CorrectorPorRespuestaFinal((esperada, dada) -> Optional.of(false), ia);
 
         var correccion = corrector.corregir(ejercicio, "", "2x - 1", 1);
 
         assertThat(correccion.tipoDeFallo()).isEqualTo(TipoDeFallo.EJECUCION);
+        assertThat(correccion.lineaDelError()).isEqualTo(2);
         assertThat(correccion.explicacion()).isEqualTo("Restaste mal en la línea 2.\n\nPista: Revisa el signo.");
     }
 

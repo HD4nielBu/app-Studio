@@ -58,7 +58,8 @@ export function Resolver({ ejercicio, onTerminar }: { ejercicio: Ejercicio; onTe
             <div role="status">
               <p>
                 Incorrecto (pista {intento.pistasUsadas} de {intento.pistasMaximas})
-                {ultima.correccion.tipoDeFallo && ` · fallo de ${tiposDeFallo[ultima.correccion.tipoDeFallo]}`}.
+                {ultima.correccion.tipoDeFallo && ` · fallo de ${tiposDeFallo[ultima.correccion.tipoDeFallo]}`}
+                {ultima.correccion.lineaDelError && ` · línea ${ultima.correccion.lineaDelError} de tu desarrollo`}.
               </p>
               <p style={{ whiteSpace: "pre-line" }}>{ultima.correccion.explicacion}</p>
             </div>

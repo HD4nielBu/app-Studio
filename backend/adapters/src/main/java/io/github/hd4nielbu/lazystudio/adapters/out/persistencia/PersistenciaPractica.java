@@ -71,12 +71,13 @@ class PersistenciaPractica implements RepositorioDeEjercicios, RepositorioDeInte
             var r = i.respuestas().get(n);
             var c = r.correccion();
             jdbc.sql("""
-                    insert into respuestas (intento_id, numero, desarrollo, respuesta_final, confianza, correcta, tipo_fallo, explicacion)
-                    values (:intento, :numero, :desarrollo, :final, :confianza, :correcta, :tipo, :explicacion)
+                    insert into respuestas (intento_id, numero, desarrollo, respuesta_final, confianza, correcta, tipo_fallo, explicacion, linea_error)
+                    values (:intento, :numero, :desarrollo, :final, :confianza, :correcta, :tipo, :explicacion, :linea)
                     on conflict do nothing""")
                     .param("intento", i.id()).param("numero", n).param("desarrollo", r.desarrollo())
                     .param("final", r.respuestaFinal()).param("confianza", r.confianza()).param("correcta", c.correcta())
                     .param("tipo", c.tipoDeFallo() == null ? null : c.tipoDeFallo().name()).param("explicacion", c.explicacion())
+                    .param("linea", c.lineaDelError())
                     .update();
         }
     }
@@ -120,7 +121,8 @@ class PersistenciaPractica implements RepositorioDeEjercicios, RepositorioDeInte
     private static Respuesta respuesta(ResultSet rs) throws SQLException {
         var tipo = rs.getString("tipo_fallo");
         return new Respuesta(rs.getString("desarrollo"), rs.getString("respuesta_final"), rs.getInt("confianza"),
-                new Correccion(rs.getBoolean("correcta"), tipo == null ? null : TipoDeFallo.valueOf(tipo), rs.getString("explicacion")));
+                new Correccion(rs.getBoolean("correcta"), tipo == null ? null : TipoDeFallo.valueOf(tipo), rs.getString("explicacion"),
+                rs.getObject("linea_error", Integer.class)));
     }
 
     private Ejercicio ejercicio(ResultSet rs, int n) throws SQLException {

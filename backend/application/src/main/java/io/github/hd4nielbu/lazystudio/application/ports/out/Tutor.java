@@ -15,6 +15,6 @@ public interface Tutor {
      */
     Optional<Revision> revisarFallo(Ejercicio ejercicio, String desarrollo, String respuestaFinal, int pista);
 
-    /** {@code pista} es null cuando no se pidió (rescate). */
-    record Revision(TipoDeFallo tipoDeFallo, String primerError, String pista) {}
+    /** {@code pista} es null cuando no se pidió (rescate); {@code linea}, la del desarrollo con el error, o null. */
+    record Revision(TipoDeFallo tipoDeFallo, String primerError, String pista, Integer linea) {}
 }

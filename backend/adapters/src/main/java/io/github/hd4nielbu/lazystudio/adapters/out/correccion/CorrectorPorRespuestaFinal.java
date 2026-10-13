@@ -37,8 +37,8 @@ class CorrectorPorRespuestaFinal implements Corrector {
         }
         return tutor.revisarFallo(ejercicio, desarrollo, respuestaFinal, pista)
                 .map(r -> new Correccion(false, r.tipoDeFallo(),
-                        r.pista() == null ? r.primerError() : r.primerError() + "\n\nPista: " + r.pista()))
-                .orElse(new Correccion(false, null, SIN_EVALUAR));
+                        r.pista() == null ? r.primerError() : r.primerError() + "\n\nPista: " + r.pista(), r.linea()))
+                .orElse(new Correccion(false, null, SIN_EVALUAR, null));
     }
 
     static String normalizar(String texto) {

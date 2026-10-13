@@ -21,7 +21,9 @@ final class Indicaciones {
             palabras y, si citas una expresión, que sea solo una que el alumno ya escribió.
             Escribe en español y tutea siempre al alumno (tú: "omitiste", "revisa"), en pocas frases. \
             Responde SOLO con un objeto JSON:
-            {"tipoDeFallo": "...", "primerError": "...", "pista": "..." o null}""";
+            {"tipoDeFallo": "...", "primerError": "...", "pista": "..." o null, "linea": N o null}
+            "linea" es el número de la línea del desarrollo donde está el primer error (las líneas vienen numeradas); \
+            null si no hay desarrollo o si el error está solo en la respuesta final.""";
 
     static String fallo(Ejercicio ejercicio, String desarrollo, String respuestaFinal, int pista) {
         return """
@@ -31,8 +33,18 @@ final class Indicaciones {
                 %s
                 Respuesta final del alumno: %s
                 Pista pedida: %d""".formatted(ejercicio.enunciado(), ejercicio.respuestaFinal(),
-                desarrollo == null || desarrollo.isBlank() ? "(no escribió desarrollo)" : desarrollo,
+                desarrollo == null || desarrollo.isBlank() ? "(no escribió desarrollo)" : numerar(desarrollo),
                 respuestaFinal, pista);
+    }
+
+    /** "1: ...", "2: ...": así la IA puede decir en qué línea está el error. */
+    static String numerar(String desarrollo) {
+        var lineas = desarrollo.strip().lines().toList();
+        var numeradas = new StringBuilder();
+        for (int i = 0; i < lineas.size(); i++) {
+            numeradas.append(i + 1).append(": ").append(lineas.get(i)).append("\n");
+        }
+        return numeradas.toString().stripTrailing();
     }
 
     private Indicaciones() {}

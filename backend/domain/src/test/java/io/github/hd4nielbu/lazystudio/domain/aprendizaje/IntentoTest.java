@@ -19,7 +19,7 @@ class IntentoTest {
     }
 
     static Respuesta mal(int confianza) {
-        return new Respuesta("", "r", confianza, new Correccion(false, null, null));
+        return new Respuesta("", "r", confianza, new Correccion(false, null, null, null));
     }
 
     @Test
@@ -69,6 +69,8 @@ class IntentoTest {
 
     @Test
     void unaCorreccionCorrectaNoTieneTipoDeFallo() {
-        assertThatThrownBy(() -> new Correccion(true, TipoDeFallo.EJECUCION, null)).isInstanceOf(ReglaVioladaException.class);
+        assertThatThrownBy(() -> new Correccion(true, TipoDeFallo.EJECUCION, null, null)).isInstanceOf(ReglaVioladaException.class);
+        assertThatThrownBy(() -> new Correccion(true, null, null, 2)).isInstanceOf(ReglaVioladaException.class);
+        assertThatThrownBy(() -> new Correccion(false, null, null, 0)).isInstanceOf(ReglaVioladaException.class);
     }
 }

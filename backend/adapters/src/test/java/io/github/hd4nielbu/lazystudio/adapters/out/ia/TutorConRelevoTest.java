@@ -111,12 +111,20 @@ class TutorConRelevoTest {
 
     @Test
     void validaLaSalida() {
-        assertThat(TutorConRelevo.validar("```json\n" + VALIDA + "\n```", 1, "1 + 2x")).as("acepta JSON envuelto").isPresent();
-        assertThat(TutorConRelevo.validar(VALIDA.replace("\"Revisa el signo.\"", "null"), 1, "1 + 2x"))
+        assertThat(TutorConRelevo.validar("```json\n" + VALIDA + "\n```", 1, "1 + 2x", 4)).as("acepta JSON envuelto").isPresent();
+        assertThat(TutorConRelevo.validar(VALIDA.replace("\"Revisa el signo.\"", "null"), 1, "1 + 2x", 4))
                 .as("si se pidió pista, debe venir").isEmpty();
-        assertThat(TutorConRelevo.validar(VALIDA.replace("\"Revisa el signo.\"", "null"), 0, "1 + 2x"))
+        assertThat(TutorConRelevo.validar(VALIDA.replace("\"Revisa el signo.\"", "null"), 0, "1 + 2x", 4))
                 .as("en el rescate no hace falta pista").isPresent();
-        assertThat(TutorConRelevo.validar(VALIDA.replace("Revisa el signo.", "La respuesta es 1+2x"), 1, "1 + 2x"))
+        assertThat(TutorConRelevo.validar(VALIDA.replace("Revisa el signo.", "La respuesta es 1+2x"), 1, "1 + 2x", 4))
                 .as("la pista no puede regalar la respuesta (R11)").isEmpty();
+    }
+
+    @Test
+    void laLineaDebeExistirEnElDesarrollo() {
+        var conLinea = VALIDA.replace("}", ", \"linea\": 3}");
+        assertThat(TutorConRelevo.validar(conLinea, 1, "1 + 2x", 4).orElseThrow().linea()).isEqualTo(3);
+        assertThat(TutorConRelevo.validar(conLinea, 1, "1 + 2x", 2).orElseThrow().linea())
+                .as("una línea que no existe se descarta, pero la revisión sigue valiendo").isNull();
     }
 }
