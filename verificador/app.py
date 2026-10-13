@@ -5,18 +5,23 @@ null significa "no se pudo decidir" (no se entiende la expresión o tardó demas
 """
 import json
 import multiprocessing
+from itertools import permutations
 import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from sympy import E, simplify, sin, tan
-from sympy.parsing.sympy_parser import (convert_xor, implicit_multiplication_application, parse_expr,
+from sympy.parsing.sympy_parser import (_token_splittable, convert_xor, function_exponentiation, implicit_application,
+                                        implicit_multiplication, parse_expr, split_symbols_custom,
                                         standard_transformations)
 
 MAX_LARGO = 300
 SEGUNDOS = 5
 # parse_expr usa eval: solo se admiten caracteres de fórmula y nada de "__" ni ";" para cerrar el paso a código.
 PERMITIDOS = re.compile(r"[0-9A-Za-z_+\-*/^().,=\s]*")
-TRANSFORMACIONES = standard_transformations + (implicit_multiplication_application, convert_xor)
+# Como implicit_multiplication_application, pero C1 sigue siendo una constante y no C*1.
+SEPARAR = split_symbols_custom(lambda nombre: not re.fullmatch(r"[A-Za-z]\d+", nombre) and _token_splittable(nombre))
+TRANSFORMACIONES = standard_transformations + (SEPARAR, implicit_multiplication, implicit_application,
+                                               function_exponentiation, convert_xor)
 # Solo el espacio de nombres de SymPy, sin las funciones nativas de Python (eval, chr, open...).
 NOMBRES = {}
 exec("from sympy import *", NOMBRES)
@@ -36,9 +41,24 @@ def a_expresion(texto):
 def equivalentes(esperada, dada):
     """True, False o None si no se puede decidir."""
     try:
-        return bool(simplify(a_expresion(esperada) - a_expresion(dada)) == 0)
+        a, b = a_expresion(esperada), a_expresion(dada)
+        if simplify(a - b) == 0:
+            return True
+        return _iguales_renombrando_constantes(a, b)
     except Exception:
         return None
+
+
+def _iguales_renombrando_constantes(a, b):
+    # Las constantes arbitrarias (C1, C2...) pueden llevar otro nombre u orden: A e^-x + B e^x vale lo mismo.
+    # shortcut: no reconoce constantes reescaladas (2*C1, C1+C2); ampliar si los ejercicios lo piden.
+    constantes = sorted((s for s in a.free_symbols if re.fullmatch(r"C\d*", s.name)), key=lambda s: s.name)
+    variables = a.free_symbols - set(constantes)
+    del_alumno = sorted(b.free_symbols - variables, key=lambda s: s.name)
+    if not constantes or len(del_alumno) != len(constantes) or len(constantes) > 4:
+        return False
+    return any(simplify(a - b.xreplace(dict(zip(del_alumno, orden)))) == 0
+               for orden in permutations(constantes))
 
 
 def _en_proceso(esperada, dada, salida):

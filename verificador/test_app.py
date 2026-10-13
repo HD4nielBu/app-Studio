@@ -12,8 +12,17 @@ class EquivalentesTest(unittest.TestCase):
         self.assertTrue(equivalentes("e^(2x) sen(x)", "sin(x) e^(2x)"))
         self.assertTrue(equivalentes("tg(x)", "sin(x)/cos(x)"))
 
+    def test_acepta_constantes_con_otro_nombre_u_orden(self):
+        self.assertTrue(equivalentes("C1*exp(x) + C2*exp(-x)", "C1*exp(-x) + C2*exp(x)"))
+        self.assertTrue(equivalentes("C1*exp(x) + C2*exp(-x)", "A*exp(-x) + B*exp(x)"))
+
     def test_distingue_expresiones_distintas(self):
         self.assertFalse(equivalentes("2x+1", "2x-1"))
+        # una sola constante no alcanza para la solución general
+        self.assertFalse(equivalentes("C1*exp(x) + C2*exp(-x)", "A*exp(x) + A*exp(-x)"))
+        self.assertFalse(equivalentes("C1*exp(x) + C2*exp(-x)", "A*exp(x) + B*exp(2x)"))
+        # C1 y C2 son dos constantes, no C*1 y C*2
+        self.assertFalse(equivalentes("C1*exp(x) + C2*exp(-x)", "C*exp(x) + 2*C*exp(-x)"))
 
     def test_no_decide_si_no_entiende_la_expresion(self):
         self.assertIsNone(equivalentes("2x+", "2x"))
