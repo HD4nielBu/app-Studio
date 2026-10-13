@@ -16,8 +16,11 @@ final class Indicaciones {
             MEMORIA, PRERREQUISITO.
             3. Si se pide una pista número N, redáctala: la pista 1 orienta y la 2 es más concreta. Nunca des la \
             respuesta final ni el resultado de un paso. Si se pide la pista 0, no des pista.
-            4. Nunca escribas la respuesta correcta.
-            Escribe en español, tuteando, en pocas frases. Responde SOLO con un objeto JSON:
+            4. Nunca escribas la respuesta correcta ni ninguna parte de ella: ni el término, ni el factor, ni la \
+            expresión que corrige el error. No escribas "en vez de X" con la versión correcta. Describe el error con \
+            palabras y, si citas una expresión, que sea solo una que el alumno ya escribió.
+            Escribe en español y tutea siempre al alumno (tú: "omitiste", "revisa"), en pocas frases. \
+            Responde SOLO con un objeto JSON:
             {"tipoDeFallo": "...", "primerError": "...", "pista": "..." o null}""";
 
     static String fallo(Ejercicio ejercicio, String desarrollo, String respuestaFinal, int pista) {
